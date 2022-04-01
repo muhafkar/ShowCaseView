@@ -138,10 +138,10 @@ public class GuideView extends FrameLayout {
 
         mMessageView = new GuideMessageView(getContext());
         llDontShowAgain = new LinearLayout(context);
-        llDontShowAgainParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        llDontShowAgainParams.setMargins(15,0,0,140);
-        llDontShowAgainParams.gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
-        llDontShowAgain.setLayoutParams(llDontShowAgainParams);
+//        llDontShowAgainParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+//        llDontShowAgainParams.setMargins(15,0,0,140);
+//        llDontShowAgainParams.gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
+//        llDontShowAgain.setLayoutParams(llDontShowAgainParams);
         llDontShowAgain.setOrientation(LinearLayout.HORIZONTAL);
         llDontShowAgain.setGravity(android.view.Gravity.CENTER);
 
@@ -191,6 +191,12 @@ public class GuideView extends FrameLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         );
+
+        addView(llDontShowAgain,
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                ));
         setMessageLocation(resolveMessageViewLocation());
 
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -463,6 +469,8 @@ public class GuideView extends FrameLayout {
     private void setMessageLocation(Point p) {
         mMessageView.setX(p.x);
         mMessageView.setY(p.y);
+        llDontShowAgain.setX(p.x);
+        llDontShowAgain.setY(p.y + mMessageView.getHeight());
         postInvalidate();
     }
 
@@ -522,24 +530,24 @@ public class GuideView extends FrameLayout {
         this.startAnimation(startAnimation);
         mIsShowing = true;
 
-        switch(checkOrientation()){
-            case Surface.ROTATION_0:
-                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,getNavigationBarSize());
-                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
-                break;
-
-            case Surface.ROTATION_90:
-                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,0);
-                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
-                break;
-
-            case Surface.ROTATION_270:
-                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,0);
-                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
-                break;
-        }
-
-        addView(llDontShowAgain, llDontShowAgainParams);
+//        switch(checkOrientation()){
+//            case Surface.ROTATION_0:
+//                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,getNavigationBarSize());
+//                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+//                break;
+//
+//            case Surface.ROTATION_90:
+//                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,0);
+//                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
+//                break;
+//
+//            case Surface.ROTATION_270:
+//                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,0);
+//                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+//                break;
+//        }
+//
+//        addView(llDontShowAgain, llDontShowAgainParams);
     }
 
     public void setTitle(String str) {
