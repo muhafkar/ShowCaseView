@@ -588,6 +588,10 @@ public class GuideView extends FrameLayout {
         mMessageView.setBtnNextOnClickListener(onClickListener);
     }
 
+    public void setCheckboxInitialValue(boolean isChecked) {
+        checkbox.setChecked(isChecked);
+    }
+
     public static class Builder {
 
         private View targetView;
@@ -619,6 +623,7 @@ public class GuideView extends FrameLayout {
         private String dontShowAgainText;
         private OnClickListener btnSkipClickListener;
         private OnClickListener btnNextClickListener;
+        private boolean isChecked;
 
         public Builder(Context context) {
             this.context = context;
@@ -869,6 +874,17 @@ public class GuideView extends FrameLayout {
         }
 
         /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param isChecked boolean
+         * @return builder
+         */
+        public Builder setCheckboxInitialValue(boolean isChecked) {
+            this.isChecked = isChecked;
+            return this;
+        }
+
+        /**
          * the defined messageBoxAndLineAndPointerColor overrides any defined messageBoxAndLineAndPointerColor in the default or provided style
          *
          * @param messageBoxAndLineAndPointerColor color of messageBox
@@ -1015,6 +1031,7 @@ public class GuideView extends FrameLayout {
             if (btnSkipClickListener != null) {
                 guideView.setBtnSkipOnClickListener(btnSkipClickListener);
             }
+            guideView.setCheckboxInitialValue(isChecked);
 
             return guideView;
         }
