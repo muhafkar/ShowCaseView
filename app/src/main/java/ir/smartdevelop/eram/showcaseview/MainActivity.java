@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
         view3 = findViewById(R.id.view3);
         view4 = findViewById(R.id.view4);
         view5 = findViewById(R.id.view5);
-        view6 = findViewById(R.id.view6);
 
         builder = new GuideView.Builder(this)
                 .setTitle("Guide Title Text")
@@ -41,14 +40,10 @@ public class MainActivity extends AppCompatActivity {
                 .setDismissType(DismissType.anywhere)
                 .setPointerType(PointerType.arrow)
                 .setTargetView(view1)
-                .setMessageBoxColor(Color.BLACK)
-                .setLineAndPointerColor(Color.WHITE)
-                .setMessageTitleColor(Color.WHITE)
-                .setMessageContentTextColor(Color.WHITE)
-                .enableSkipButton(view6)
+                .setIsMessageVisible(false)
                 .setGuideListener(new GuideListener() {
                     @Override
-                    public void onDismiss(View view) {
+                    public void onDismiss(View view, Boolean isDontShowAgainChecked) {
                         switch (view.getId()) {
                             case R.id.view1:
                                 builder.setTargetView(view2).build();

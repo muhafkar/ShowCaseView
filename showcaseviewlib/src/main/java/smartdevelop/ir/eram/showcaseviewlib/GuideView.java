@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -20,6 +21,7 @@ import android.graphics.Typeface;
 import android.graphics.Xfermode;
 import android.os.Build;
 import android.text.Spannable;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -28,8 +30,14 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.ArrayList;
 
 import smartdevelop.ir.eram.showcaseviewlib.config.DismissType;
 import smartdevelop.ir.eram.showcaseviewlib.config.Gravity;
@@ -90,6 +98,7 @@ public class GuideView extends FrameLayout {
     private int circleInnerIndicatorColor = 0xffcccccc;
     private int circleIndicatorColor = Color.WHITE;
     private int lineIndicatorColor = Color.WHITE;
+    private boolean isContentTextVisible = true;
 
     private boolean isPerformedAnimationSize = false;
 
@@ -98,12 +107,13 @@ public class GuideView extends FrameLayout {
     private DismissType dismissType;
     private PointerType pointerType;
     private final GuideMessageView mMessageView;
-    private final TextView skipButton;
-    private View lastTargetView;
-    private boolean enableSkipButton = false;
+    private LinearLayout llDontShowAgain;
     private static final String SKIP_BUTTON_TEXT = "SKIP";
     private static final int MARGIN_SIZE = 10;
-    FrameLayout.LayoutParams skipParams;
+    FrameLayout.LayoutParams llDontShowAgainParams;
+//    private CheckedTextView dontShowAgainCheckbox;
+    private CheckBox checkbox;
+    private TextView textView;
 
     private GuideView(Context context, View view) {
         super(context);
@@ -127,19 +137,44 @@ public class GuideView extends FrameLayout {
         }
 
         mMessageView = new GuideMessageView(getContext());
-        skipButton = new TextView(context);
-        skipButton.setText(SKIP_BUTTON_TEXT);
-        skipButton.setTextColor(Color.WHITE);
-        skipButton.setGravity(android.view.Gravity.CENTER);
-        skipButton.setPadding(
-                messageViewPadding,
-                messageViewPadding,
-                messageViewPadding,
-                messageViewPadding
-        );
-        skipParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        ((LayoutParams)skipParams).setMargins(0,0,10,140);
-        ((LayoutParams)skipParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+        llDontShowAgain = new LinearLayout(context);
+        llDontShowAgainParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        llDontShowAgainParams.setMargins(15,0,0,140);
+        llDontShowAgainParams.gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
+        llDontShowAgain.setLayoutParams(llDontShowAgainParams);
+        llDontShowAgain.setOrientation(LinearLayout.HORIZONTAL);
+        llDontShowAgain.setGravity(android.view.Gravity.CENTER);
+
+        checkbox = new CheckBox(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            checkbox.setButtonTintList(new ColorStateList(
+                    new int[][]{
+                            new int[]{android.R.attr.state_pressed},
+                            new int[]{android.R.attr.state_enabled},
+                            new int[]{android.R.attr.state_focused, android.R.attr.state_pressed},
+                            new int[]{-android.R.attr.state_enabled},
+                            new int[]{} // this should be empty to make default color as we want
+                    }, new int[]{
+                            Color.WHITE,
+                            Color.WHITE,
+                            Color.WHITE,
+                            Color.WHITE,
+                            Color.WHITE,
+                    }));
+        }
+        checkbox.setScaleX(1.25F);
+        checkbox.setScaleY(1.25F);
+        llDontShowAgain.addView(checkbox);
+
+        textView = new TextView(context);
+        textView.setText("Don't show again");
+        textView.setTextColor(Color.WHITE);
+        LayoutParams paramsTv = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        paramsTv.setMargins(8, 0, 0, 0);
+        textView.setLayoutParams(paramsTv);
+        textView.setTextSize(16);
+        textView.setMaxWidth(240);
+        llDontShowAgain.addView(textView);
 
         mMessageView.setPadding(
             messageViewPadding,
@@ -156,13 +191,6 @@ public class GuideView extends FrameLayout {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         );
-        skipButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(enableSkipButton && lastTargetView != null)
-                    dismiss(lastTargetView);
-            }
-        });
         setMessageLocation(resolveMessageViewLocation());
 
         ViewTreeObserver.OnGlobalLayoutListener layoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -303,6 +331,7 @@ public class GuideView extends FrameLayout {
         mMessageView.setColor(messageBoxColor);
         mMessageView.setTitleColor(messageTitleColor);
         mMessageView.setContentTextColor(messageContentTextColor);
+        mMessageView.setIsContentTextVisible(isContentTextVisible);
         if (target != null) {
 
             selfPaint.setColor(BACKGROUND_COLOR);
@@ -377,7 +406,7 @@ public class GuideView extends FrameLayout {
         ((ViewGroup) ((Activity) getContext()).getWindow().getDecorView()).removeView(this);
         mIsShowing = false;
         if (mGuideListener != null) {
-            mGuideListener.onDismiss(view);
+            mGuideListener.onDismiss(view, checkbox.isChecked());
         }
     }
 
@@ -411,6 +440,8 @@ public class GuideView extends FrameLayout {
                     if (isViewContains(mMessageView, x, y)) {
                         dismiss(target);
                     }
+                    break;
+                case nextSkip:
                     break;
             }
             return true;
@@ -490,27 +521,25 @@ public class GuideView extends FrameLayout {
         startAnimation.setFillAfter(true);
         this.startAnimation(startAnimation);
         mIsShowing = true;
-        if(enableSkipButton) {
 
         switch(checkOrientation()){
             case Surface.ROTATION_0:
-                ((LayoutParams)skipParams).setMargins(0,0,MARGIN_SIZE,getNavigationBarSize());
-                ((LayoutParams)skipParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,getNavigationBarSize());
+                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
                 break;
 
             case Surface.ROTATION_90:
-                ((LayoutParams)skipParams).setMargins(MARGIN_SIZE,0,0,0);
-                ((LayoutParams)skipParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
+                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,0);
+                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
 
             case Surface.ROTATION_270:
-                ((LayoutParams)skipParams).setMargins(0,0,MARGIN_SIZE,0);
-                ((LayoutParams)skipParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,0);
+                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
                 break;
         }
 
-            addView(skipButton, skipParams);
-        }
+        addView(llDontShowAgain, llDontShowAgainParams);
     }
 
     public void setTitle(String str) {
@@ -541,6 +570,24 @@ public class GuideView extends FrameLayout {
         mMessageView.setContentTextSize(size);
     }
 
+    public void setBtnNextText(String text) {
+        mMessageView.setBtnNextText(text);
+    }
+
+    public void setBtnSkipText(String text) {
+        mMessageView.setBtnSkipText(text);
+    }
+
+    public void setDontShowAgainText(String text) { textView.setText(text); }
+
+    public void setBtnSkipOnClickListener(OnClickListener onClickListener) {
+        mMessageView.setBtnSkipOnClickListener(onClickListener);
+    }
+
+    public void setBtnNextOnClickListener(OnClickListener onClickListener) {
+        mMessageView.setBtnNextOnClickListener(onClickListener);
+    }
+
     public static class Builder {
 
         private View targetView;
@@ -564,10 +611,14 @@ public class GuideView extends FrameLayout {
         private int lineAndPointerColor;
         private int pointerColor;
         private int lineColor;
-        private boolean enableSkipButton;
-        private View lastTargetView;
         private int messageTitleColor;
         private int messageContentTextColor;
+        private boolean isMessageVisible;
+        private String btnNextText;
+        private String btnSkipText;
+        private String dontShowAgainText;
+        private OnClickListener btnSkipClickListener;
+        private OnClickListener btnNextClickListener;
 
         public Builder(Context context) {
             this.context = context;
@@ -751,6 +802,71 @@ public class GuideView extends FrameLayout {
             return this;
         }
 
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param isVisible visibility of message
+         * @return builder
+         */
+        public Builder setIsMessageVisible(boolean isVisible) {
+            this.isMessageVisible = isVisible;
+            return this;
+        }
+
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param text next text
+         * @return builder
+         */
+        public Builder setBtnNextText(String text) {
+            this.btnNextText = text;
+            return this;
+        }
+
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param text next text
+         * @return builder
+         */
+        public Builder setBtnSkipText(String text) {
+            this.btnSkipText = text;
+            return this;
+        }
+
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param text next text
+         * @return builder
+         */
+        public Builder setDontShowAgainText(String text) {
+            this.dontShowAgainText = text;
+            return this;
+        }
+
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param onClickListener listener
+         * @return builder
+         */
+        public Builder setBtnSkipClickListener(OnClickListener onClickListener) {
+            this.btnSkipClickListener = onClickListener;
+            return this;
+        }
+
+        /**
+         * the defined messageBoxColor overrides any defined messageBoxColor in the default or provided style
+         *
+         * @param onClickListener listener
+         * @return builder
+         */
+        public Builder setBtnNextClickListener(OnClickListener onClickListener) {
+            this.btnNextClickListener = onClickListener;
+            return this;
+        }
 
         /**
          * the defined messageBoxAndLineAndPointerColor overrides any defined messageBoxAndLineAndPointerColor in the default or provided style
@@ -812,17 +928,6 @@ public class GuideView extends FrameLayout {
             this.messageContentTextColor = messageContentTextColor;
             return this;
         }
-        /**
-         * the defined enableSkipButton overrides any defined enableSkipButton in the default
-         *
-         * @param lastTargetView Last target view
-         * @return builder
-         */
-        public Builder enableSkipButton(View lastTargetView) {
-            this.enableSkipButton = true;
-            this.lastTargetView = lastTargetView;
-            return this;
-        }
 
         public GuideView build() {
             GuideView guideView = new GuideView(context, targetView);
@@ -830,7 +935,7 @@ public class GuideView extends FrameLayout {
             guideView.dismissType = dismissType != null ? dismissType : DismissType.targetView;
             guideView.pointerType = pointerType != null ? pointerType : PointerType.circle;
             float density = context.getResources().getDisplayMetrics().density;
-            guideView.enableSkipButton = enableSkipButton;
+            guideView.isContentTextVisible = isMessageVisible;
             guideView.setTitle(title);
             if (contentText != null) {
                 guideView.setContentText(contentText);
@@ -895,8 +1000,20 @@ public class GuideView extends FrameLayout {
             if (messageContentTextColor != 0) {
                 guideView.messageContentTextColor = messageContentTextColor;
             }
-            if (enableSkipButton) {
-                guideView.lastTargetView = lastTargetView;
+            if (btnNextText != null) {
+                guideView.setBtnNextText(btnNextText);
+            }
+            if (btnSkipText != null) {
+                guideView.setBtnSkipText(btnSkipText);
+            }
+            if (dontShowAgainText != null) {
+                guideView.setDontShowAgainText(dontShowAgainText);
+            }
+            if (btnNextClickListener != null) {
+                guideView.setBtnNextOnClickListener(btnNextClickListener);
+            }
+            if (btnSkipClickListener != null) {
+                guideView.setBtnSkipOnClickListener(btnSkipClickListener);
             }
 
             return guideView;
