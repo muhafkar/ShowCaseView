@@ -523,8 +523,8 @@ public class GuideView extends FrameLayout {
 
         switch(checkOrientation()){
             case Surface.ROTATION_0:
-                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,getNavigationBarSize());
-                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,getNavigationBarSize());
+                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
 
             case Surface.ROTATION_90:
@@ -533,8 +533,8 @@ public class GuideView extends FrameLayout {
                 break;
 
             case Surface.ROTATION_270:
-                ((LayoutParams)llDontShowAgainParams).setMargins(0,0,MARGIN_SIZE,0);
-                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.RIGHT | android.view.Gravity.BOTTOM;
+                ((LayoutParams)llDontShowAgainParams).setMargins(getNavigationBarSize() + MARGIN_SIZE,0,0,0);
+                ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
         }
 
