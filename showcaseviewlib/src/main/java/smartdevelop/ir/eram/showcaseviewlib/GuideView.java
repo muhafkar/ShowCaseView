@@ -109,7 +109,7 @@ public class GuideView extends FrameLayout {
     private final GuideMessageView mMessageView;
     private LinearLayout llDontShowAgain;
     private static final String SKIP_BUTTON_TEXT = "SKIP";
-    private static final int MARGIN_SIZE = 10;
+    private static final int MARGIN_SIZE = 40;
     FrameLayout.LayoutParams llDontShowAgainParams;
 //    private CheckedTextView dontShowAgainCheckbox;
     private CheckBox checkbox;
@@ -523,17 +523,17 @@ public class GuideView extends FrameLayout {
 
         switch(checkOrientation()){
             case Surface.ROTATION_0:
-                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,getNavigationBarSize());
+                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,getNavigationBarSize() + MARGIN_SIZE);
                 ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
 
             case Surface.ROTATION_90:
-                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,0);
+                ((LayoutParams)llDontShowAgainParams).setMargins(MARGIN_SIZE,0,0,MARGIN_SIZE);
                 ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
 
             case Surface.ROTATION_270:
-                ((LayoutParams)llDontShowAgainParams).setMargins(getNavigationBarSize() + MARGIN_SIZE,0,0,0);
+                ((LayoutParams)llDontShowAgainParams).setMargins(getNavigationBarSize() + MARGIN_SIZE,0,0,MARGIN_SIZE);
                 ((LayoutParams)llDontShowAgainParams).gravity = android.view.Gravity.LEFT | android.view.Gravity.BOTTOM;
                 break;
         }
