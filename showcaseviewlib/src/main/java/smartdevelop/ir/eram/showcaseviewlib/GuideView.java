@@ -167,13 +167,12 @@ public class GuideView extends FrameLayout {
         llDontShowAgain.addView(checkbox);
 
         textView = new TextView(context);
-        textView.setText("Don't show again");
+        textView.setText("Do not show\nthis again.");
         textView.setTextColor(Color.WHITE);
         LayoutParams paramsTv = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         paramsTv.setMargins(8, 0, 0, 0);
         textView.setLayoutParams(paramsTv);
         textView.setTextSize(16);
-        textView.setMaxWidth(240);
         llDontShowAgain.addView(textView);
 
         mMessageView.setPadding(
